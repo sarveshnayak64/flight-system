@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "ddac320e-67ce-40ce-909b-b6571b25f85e",
+		"name": "Flight System",
+		"description": "**Flight System backend for flight search and booking.**\n\nTechnologies used are node js and mySQL\n\n**Installation**\n\n- Edit the .env file with the mySQL details\n- Install dependencies using 'npm install'\n- Run 'npm run seed' to create the desired tables and insert data(Flight_Data.json provided in the task) in the database\n- Start the project with 'npm run start'\n    \n\n**Description**\n\n- Searches for available flights based on origin, destination, and departure date using api/flights/search API.\n- User can login and register using api/auth/login and api/auth/register API's accordingly\n- Only the logged in user can book flight and review personal bookings using api/bookings and api/bookings/my API's.\n    \n\nThe Frontend for this application is not designed so please follow along this Postman collection where i have setup variables to handle the authTokens and API baseUrl.s",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44702746"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registers a new user. Change username/password as needed. On success, copy the 'token' from the response and set it as the 'authToken' collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set(\"authToken\", jsonData.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in an existing user. On successful login, this request automatically sets the 'authToken' collection variable with the received JWT."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Flights",
+			"item": [
+				{
+					"name": "Search Flights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/flights/search?origin=PNQ&destination=DEL&departureDate=2013-01-01",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"flights",
+								"search"
+							],
+							"query": [
+								{
+									"key": "origin",
+									"value": "PNQ",
+									"description": "Origin airport code (e.g., PNQ, DEL, BOM)"
+								},
+								{
+									"key": "destination",
+									"value": "DEL",
+									"description": "Destination airport code (e.g., DEL, BLR, MAA)"
+								},
+								{
+									"key": "departureDate",
+									"value": "2013-01-01",
+									"description": "Departure date in YYYY-MM-DD format."
+								}
+							]
+						},
+						"description": "Searches for available flights based on origin, destination, and departure date."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bookings",
+			"item": [
+				{
+					"name": "Book Flight",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}",
+								"description": "JWT token obtained from login"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightId\": 1,\n    \"seatNumber\": \"15A\",\n    \"passengerName\": \"Jane Smith\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/bookings",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"bookings"
+							]
+						},
+						"description": "Books a flight. Requires a valid JWT token in the 'x-auth-token' header. Ensure 'flightId' corresponds to an existing flight and 'seatNumber' is unique for a given booking."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}",
+								"description": "JWT token obtained from login"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/bookings/my",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"bookings",
+								"my"
+							]
+						},
+						"description": "Retrieves all bookings made by the authenticated user. Requires a valid JWT token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
