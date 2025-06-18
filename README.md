@@ -4,7 +4,7 @@ Flight System backend for flight search and booking.
 Technologies used are node js and mySQL
 
 
-Installation
+##Installation
 
 Edit the .env file with the mySQL details
 
